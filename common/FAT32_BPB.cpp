@@ -69,7 +69,7 @@ FAT32_BPB::FAT32_BPB(const std::string &imagePath)
     clusterSize=(uint32_t)secPerCluster*bytesPerSec;
 }
 
-uint32_t FAT32_BPB::clusterToOffset(uint32_t clusterNum) const{
+uint64_t FAT32_BPB::clusterToOffset(uint32_t clusterNum) const{
     return dataStartOffset+(uint64_t)clusterSize*(clusterNum-rootClusterNumber);
 }
 

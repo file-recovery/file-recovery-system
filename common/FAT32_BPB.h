@@ -19,7 +19,7 @@ public:
     uint32_t clusterSize;
     
     explicit FAT32_BPB(const std::string &imagePath);
-    uint32_t clusterToOffset(const uint32_t clusterNum) const;
+    uint64_t clusterToOffset(const uint32_t clusterNum) const;
     void printDetails() const;
 };
 
