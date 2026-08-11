@@ -3,3 +3,6 @@
 *.vdi
 build/
 *.o
+test
+fat32.img
+test.cpp
