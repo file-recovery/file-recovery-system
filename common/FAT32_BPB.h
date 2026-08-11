@@ -13,8 +13,13 @@ public:
     uint8_t fatCount;
     uint32_t fatSize;
     uint32_t rootClusterNumber;
-
+    uint64_t fatStartOffset;
+    uint32_t firstDataSector;
+    uint64_t dataStartOffset;
+    uint32_t clusterSize;
+    
     explicit FAT32_BPB(const std::string &imagePath);
+    uint32_t clusterToOffset(const uint32_t clusterNum) const;
     void printDetails() const;
 };
 
