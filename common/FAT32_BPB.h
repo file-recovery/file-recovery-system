@@ -7,9 +7,6 @@
 #include <string>
 #include <vector>
 
-bool isEndOfChain(uint32_t value);
-bool isBadCluster(uint32_t value);
-
 class FAT32_BPB
 {
 private:

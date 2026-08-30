@@ -11,7 +11,7 @@ uint32_t FAT32_FAT::getNextCluster(uint32_t cluster){
     uint32_t value;
     BPB.file.read((char*)&value,sizeof(value));
     if (!BPB.file){throw std::runtime_error("Failed to read FAT entry");}
-    value &= 0x0FFFFFFF; //Mask and remove first 4 bits as only the next 28 are useful
+    value &= FAT32_CLUSTER_MASK; //Mask and remove first 4 bits as only the next 28 are useful
     return value;
 }
 

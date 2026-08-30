@@ -1,26 +1,6 @@
 #include "FAT32_BPB.h"
 
 #pragma pack(push, 1)
-
-struct FAT32_DirEntry
-{
-    uint8_t name[11];          // 0x00
-    uint8_t attr;              // 0x0B
-    uint8_t ntRes;             // 0x0C
-    uint8_t crtTimeTenth;      // 0x0D
-    uint16_t crtTime;          // 0x0E
-    uint16_t crtDate;          // 0x10
-    uint16_t lstAccDate;       // 0x12
-    uint16_t firstClusterHi;   // 0x14
-    uint16_t wrtTime;          // 0x16
-    uint16_t wrtDate;          // 0x18
-    uint16_t firstClusterLo;   // 0x1A
-    uint32_t fileSize;         // 0x1C
-};
-#pragma pack(pop)
-
-
-#pragma pack(push, 1)
 struct FAT32_Sector
 {
     uint8_t jmpBoot[3];         // 0x00
