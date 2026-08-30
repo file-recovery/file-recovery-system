@@ -36,7 +36,7 @@ private:
 
 public:
     FAT32_Directory(FAT32_BPB& bpb, FAT32_FAT& fat);
-
+    uint32_t getRootCluster() const;
     uint32_t getFirstCluster(const FAT32_DirEntry& entry);
 
     bool isEndOfDirectory(const FAT32_DirEntry& entry);
