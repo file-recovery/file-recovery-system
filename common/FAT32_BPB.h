@@ -1,12 +1,20 @@
 #ifndef FAT32_BPB_H
 #define FAT32_BPB_H
-
-#include <string>
+#include <fstream>
+#include <iostream>
 #include <cstdint>
+#include <stdexcept>
+#include <string>
+#include <vector>
+
+bool isEndOfChain(uint32_t value);
+bool isBadCluster(uint32_t value);
 
 class FAT32_BPB
 {
-public:
+private:
+    friend class FAT32_FAT;
+    std::ifstream file;
     uint16_t bytesPerSec;
     uint8_t secPerCluster;
     uint16_t reservedSecCount;
@@ -16,8 +24,8 @@ public:
     uint64_t fatStartOffset;
     uint32_t firstDataSector;
     uint64_t dataStartOffset;
-    uint32_t clusterSize;
-    
+    uint32_t clusterSize;    
+public:
     explicit FAT32_BPB(const std::string &imagePath);
     uint64_t clusterToOffset(const uint32_t clusterNum) const;
     void printDetails() const;

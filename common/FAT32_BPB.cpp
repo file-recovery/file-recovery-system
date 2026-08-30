@@ -1,8 +1,24 @@
-#include <iostream>
-#include <cstdint>
-#include <stdexcept>
-#include <fstream>
 #include "FAT32_BPB.h"
+
+#pragma pack(push, 1)
+
+struct FAT32_DirEntry
+{
+    uint8_t name[11];          // 0x00
+    uint8_t attr;              // 0x0B
+    uint8_t ntRes;             // 0x0C
+    uint8_t crtTimeTenth;      // 0x0D
+    uint16_t crtTime;          // 0x0E
+    uint16_t crtDate;          // 0x10
+    uint16_t lstAccDate;       // 0x12
+    uint16_t firstClusterHi;   // 0x14
+    uint16_t wrtTime;          // 0x16
+    uint16_t wrtDate;          // 0x18
+    uint16_t firstClusterLo;   // 0x1A
+    uint32_t fileSize;         // 0x1C
+};
+#pragma pack(pop)
+
 
 #pragma pack(push, 1)
 struct FAT32_Sector
@@ -41,7 +57,6 @@ struct FAT32_Sector
 
 FAT32_BPB::FAT32_BPB(const std::string &imagePath)
 {
-    std::ifstream file; // read-only
     file.open(imagePath, std::ios::binary);
 
     if (!file.is_open())
@@ -70,7 +85,7 @@ FAT32_BPB::FAT32_BPB(const std::string &imagePath)
 }
 
 uint64_t FAT32_BPB::clusterToOffset(uint32_t clusterNum) const{
-    return dataStartOffset+(uint64_t)clusterSize*(clusterNum-rootClusterNumber);
+    return dataStartOffset+(uint64_t)clusterSize*(clusterNum-2);
 }
 
 void FAT32_BPB::printDetails() const
@@ -87,4 +102,4 @@ void FAT32_BPB::printDetails() const
               << "Data Start Offset:   " << dataStartOffset << "\n";
 }
 
-;
+
