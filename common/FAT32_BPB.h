@@ -11,6 +11,7 @@ class FAT32_BPB
 {
 private:
     friend class FAT32_FAT;
+    friend class FAT32_Directory;
     std::ifstream file;
     uint16_t bytesPerSec;
     uint8_t secPerCluster;
@@ -21,7 +22,8 @@ private:
     uint64_t fatStartOffset;
     uint32_t firstDataSector;
     uint64_t dataStartOffset;
-    uint32_t clusterSize;    
+    uint32_t clusterSize;
+
 public:
     explicit FAT32_BPB(const std::string &imagePath);
     uint64_t clusterToOffset(const uint32_t clusterNum) const;

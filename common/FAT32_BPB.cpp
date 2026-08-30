@@ -58,14 +58,15 @@ FAT32_BPB::FAT32_BPB(const std::string &imagePath)
     fatSize = sector.fatSize32;
     rootClusterNumber = sector.rootClusterNumber;
 
-    firstDataSector=reservedSecCount+fatCount*fatSize;
-    fatStartOffset=(uint64_t)(reservedSecCount)*bytesPerSec;
-    dataStartOffset=(uint64_t)firstDataSector*bytesPerSec;
-    clusterSize=(uint32_t)secPerCluster*bytesPerSec;
+    firstDataSector = reservedSecCount + fatCount * fatSize;
+    fatStartOffset = (uint64_t)(reservedSecCount)*bytesPerSec;
+    dataStartOffset = (uint64_t)firstDataSector * bytesPerSec;
+    clusterSize = (uint32_t)secPerCluster * bytesPerSec;
 }
 
-uint64_t FAT32_BPB::clusterToOffset(uint32_t clusterNum) const{
-    return dataStartOffset+(uint64_t)clusterSize*(clusterNum-2);
+uint64_t FAT32_BPB::clusterToOffset(uint32_t clusterNum) const
+{
+    return dataStartOffset + (uint64_t)clusterSize * (clusterNum - 2); // first data cluster = 2;
 }
 
 void FAT32_BPB::printDetails() const
@@ -81,5 +82,3 @@ void FAT32_BPB::printDetails() const
               << "First Data Sector:   " << firstDataSector << "\n"
               << "Data Start Offset:   " << dataStartOffset << "\n";
 }
-
-
