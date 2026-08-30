@@ -6,3 +6,6 @@ build/
 test
 fat32.img
 test.cpp
+.vscode/
+mnt_test/
+recovery_test
