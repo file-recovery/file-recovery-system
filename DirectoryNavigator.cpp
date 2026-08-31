@@ -4,16 +4,17 @@
 #include <iostream>
 #include <iomanip>
 #include <string>
+#include <optional>
 #include <algorithm>
 
-const uint32_t PARENT_FLAG = 0xFFFFFFFF;
-std::string formatFilename(const FAT32_DirEntry &entry)
+const uint32_t ROOT_FLAG = 0xFFFFFFFF;
+std::string formatFilename(const FAT32_DirEntry &entry) // LFN NOT HANDLED YET
 {
     uint8_t cleanName[11];
     std::copy(std::begin(entry.name), std::end(entry.name), cleanName);
     if (cleanName[0] == 0xE5)
     {
-        cleanName[0] = '_';
+        cleanName[0] = '_'; // placeholder char to replace the deleted char
     }
     std::string base(reinterpret_cast<const char *>(cleanName), 8);
     base.erase(base.find_last_not_of(' ') + 1);
@@ -33,7 +34,7 @@ void listDirectory(FAT32_Directory &dir, uint32_t clusterNumber)
               << std::setw(25) << "[Name]"
               << std::setw(12) << "[Type]"
               << std::setw(15) << "[Size]"
-              << "[Status]" << std::endl;           // add back status when determined recoverable or not
+              << "[Status]" << std::endl;           // status shows active/deleted
     std::cout << std::string(65, '-') << std::endl; // just terminal formatting
 
     dir.walkDirectory(clusterNumber, [&dir](const FAT32_DirEntry &entry)
@@ -43,37 +44,38 @@ void listDirectory(FAT32_Directory &dir, uint32_t clusterNumber)
         bool isDir = dir.isDirectory(entry);
 
         if(isDel && isDir) return;
-        if(!isDel && !isDir) return;
 
         std::string filename = formatFilename(entry);
-        std::string typeStr = dir.isDirectory(entry)? "<DIR>":"<FILE>";
+        std::string typeStr = isDir? "<DIR>":"<FILE>";
+        std::string statusStr = isDel? "Deleted":"Active";
+        std::string sizeStr = std::to_string(entry.fileSize) + " B";
 
         std::cout << std::left 
                   << std::setw(25) << filename 
                   << std::setw(12) << typeStr 
-                  << entry.fileSize << " B" << std::endl; }); // terminal formatting
+                  << std::setw(15) << sizeStr
+                  << statusStr << std::endl; }); // terminal formatting
 }
 
-uint32_t changeDirectory(FAT32_Directory &dir, uint32_t currentCluster, std::string &arg)
+std::optional<uint32_t> changeDirectory(FAT32_Directory &dir, uint32_t currentCluster, std::string &arg)
 {
     if (arg == ".")
         return currentCluster;
 
     uint32_t targetCluster = 0;
-
-    dir.walkDirectory(currentCluster, [&dir, &arg, &targetCluster](const FAT32_DirEntry &entry)
+    bool dirFound = false;
+    dir.walkDirectory(currentCluster, [&dir, &arg, &targetCluster, &dirFound](const FAT32_DirEntry &entry)
                       {
         if(dir.isDirectory(entry)){
             if(formatFilename(entry) == arg){
-                targetCluster = dir.getFirstCluster(entry);    
+                targetCluster = dir.getFirstCluster(entry); 
+                dirFound = true;   
             }
         } });
-    if (arg == ".." && targetCluster == 0) // need to fix
-    {
-        return PARENT_FLAG; // constant flag
-    }
 
-    return targetCluster;
+    if (dirFound)
+        return targetCluster;
+    return std::nullopt;
 }
 
 void directoryNav(FAT32_Directory &dir)
@@ -82,7 +84,7 @@ void directoryNav(FAT32_Directory &dir)
 
     while (true)
     {
-        std::cout << "\nFAT32 Shell: [Current Cluster]:" << currentCluster << std::endl;
+        std::cout << "\n[Directory Navigator] : [Current Cluster]:" << currentCluster << std::endl;
         std::string command, arg;
         std::cin >> command;
 
@@ -94,19 +96,24 @@ void directoryNav(FAT32_Directory &dir)
         else if (command == "cd")
         {
             std::cin >> arg;
-            uint32_t nextCluster = changeDirectory(dir, currentCluster, arg);
+            auto nextClusterOpt = changeDirectory(dir, currentCluster, arg);
 
-            if (arg == ".." && (nextCluster == 0 || nextCluster == PARENT_FLAG))
+            if (nextClusterOpt.has_value())
             {
-                currentCluster = dir.getRootCluster();
+                uint32_t nextCluster = nextClusterOpt.value();
+                if (nextCluster == 0)
+                {
+                    currentCluster = dir.getRootCluster();
+                }
+                else
+                {
+                    currentCluster = nextCluster;
+                }
             }
-            else if (nextCluster == 0 || nextCluster == PARENT_FLAG)
-            {
-                std::cerr << "ERROR: Directory not found\n";
-            }
+
             else
             {
-                currentCluster = nextCluster;
+                std::cerr << "ERROR: Directory not found\n";
             }
         }
         else if (command == "exit")
