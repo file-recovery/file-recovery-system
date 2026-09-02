@@ -1,4 +1,4 @@
-#include "FAT32_BPB.h"
+#include "common/FAT32_BPB.h"
 
 #pragma pack(push, 1)
 struct FAT32_Sector

@@ -1,4 +1,4 @@
-#include "FAT32_Dir.h"
+#include "common/FAT32_Dir.h"
 
 FAT32_Directory::FAT32_Directory(FAT32_BPB &bpb, FAT32_FAT &fat) : BPB(bpb), FAT(fat) {}
 
