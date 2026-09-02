@@ -33,7 +33,7 @@ bool FAT32_Directory::isDirectory(const FAT32_DirEntry &entry)
     return (entry.attr & 0x10) != 0;
 }
 
-void FAT32_Directory::walkDirectory(uint32_t startCluster, std::function<void(const FAT32_DirEntry &)> callback)
+void FAT32_Directory::walkDirectory(uint32_t startCluster, std::function<bool(const FAT32_DirEntry &)> callback)
 {
     std::vector<uint32_t> chain = FAT.getClusterChain(startCluster);
     for (auto cluster : chain)
@@ -47,6 +47,10 @@ void FAT32_Directory::walkDirectory(uint32_t startCluster, std::function<void(co
         {
             FAT32_DirEntry entry{};
             BPB.file.read((char *)&entry, sizeof(FAT32_DirEntry));
+            if (!BPB.file)
+            {
+                throw std::runtime_error("Failed to seek directory cluster");
+            }
             if (isEndOfDirectory(entry))
             {
                 return;
@@ -56,10 +60,6 @@ void FAT32_Directory::walkDirectory(uint32_t startCluster, std::function<void(co
                 continue;
             }
             callback(entry);
-            if (!BPB.file)
-            {
-                throw std::runtime_error("Failed to seek directory cluster");
-            }
         }
     }
 }

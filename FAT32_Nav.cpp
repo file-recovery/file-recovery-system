@@ -39,11 +39,11 @@ void listDirectory(FAT32_Directory &dir, uint32_t clusterNumber)
 
     dir.walkDirectory(clusterNumber, [&dir](const FAT32_DirEntry &entry)
                       {
-        if (entry.name[0] == '.') return;
+        if (entry.name[0] == '.') return true;
         bool isDel = dir.isDeleted(entry);
         bool isDir = dir.isDirectory(entry);
 
-        if(isDel && isDir) return;
+        if(isDel && isDir) return true;
 
         std::string filename = formatFilename(entry);
         std::string typeStr = isDir? "<DIR>":"<FILE>";
@@ -54,7 +54,8 @@ void listDirectory(FAT32_Directory &dir, uint32_t clusterNumber)
                   << std::setw(25) << filename 
                   << std::setw(12) << typeStr 
                   << std::setw(15) << sizeStr
-                  << statusStr << std::endl; }); // terminal formatting
+                  << statusStr << std::endl; 
+        return true; });
 }
 
 std::optional<uint32_t> changeDirectory(FAT32_Directory &dir, uint32_t currentCluster, std::string &arg)
@@ -69,9 +70,12 @@ std::optional<uint32_t> changeDirectory(FAT32_Directory &dir, uint32_t currentCl
         if(dir.isDirectory(entry)){
             if(formatFilename(entry) == arg){
                 targetCluster = dir.getFirstCluster(entry); 
-                dirFound = true;   
+                dirFound = true;
+                return false;   
             }
-        } });
+            return true;
+        }
+    return true; });
 
     if (dirFound)
         return targetCluster;

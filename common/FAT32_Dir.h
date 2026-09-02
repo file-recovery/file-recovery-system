@@ -34,16 +34,16 @@ private:
     FAT32_FAT &FAT;
 
 public:
-    FAT32_Directory(FAT32_BPB& bpb, FAT32_FAT& fat);
+    FAT32_Directory(FAT32_BPB &bpb, FAT32_FAT &fat);
     uint32_t getRootCluster() const;
-    uint32_t getFirstCluster(const FAT32_DirEntry& entry);
+    uint32_t getFirstCluster(const FAT32_DirEntry &entry);
 
     bool isEndOfDirectory(const FAT32_DirEntry &entry);
     bool isDeleted(const FAT32_DirEntry &entry);
     bool isLFN(const FAT32_DirEntry &entry);
     bool isDirectory(const FAT32_DirEntry &entry);
 
-    void walkDirectory(uint32_t startCluster, std::function<void(const FAT32_DirEntry &)> callback);
+    void walkDirectory(uint32_t startCluster, std::function<bool(const FAT32_DirEntry &)> callback);
 };
 
 #endif
